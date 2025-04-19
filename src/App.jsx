@@ -1,53 +1,58 @@
-import { useState, useEffect } from "react";
-import fetchPokemon from "./api/fetchPokemon";
-import Sorting from "./components/Sorting/Sorting";
+import fetchPokemon from "./api/fetchPokemon"
+import Sorting from './components/Sorting/Sorting'
+import { useState, useEffect } from 'react'
 
 const App = () => {
   const [pokemon, setPokemon] = useState([]);
   const [types, setTypes] = useState([]);
-  const [filterType, setFilterType] = useState('');
+  const [selectedType, setSelectedType] = useState('');
   const [sortBy, setSortBy] = useState('');
 
   useEffect(() => {
     const getPokemon = async () => {
       const data = await fetchPokemon();
       setPokemon(data);
-
-      const newTypes = [...new Set(data.flatMap((p) => p.type))];
-      setTypes(newTypes);
-    };
+      const newTypes = [...new Set(data.flatMap((poke => poke.types)))]
+      setTypes(newTypes)
+    }
     getPokemon();
-  }, []);
+  }, [])
 
-  let sortedPokemon = [...pokemon];
+  console.log(pokemon)
+  console.log(types)
 
-  if (sortBy === 'alphabetical') {
-    sortedPokemon.sort((a, b) => a.name.localeCompare(b.name));
+  let sortedPokemon = [...pokemon]
+
+  // type sorting logic
+  if (selectedType) {
+    sortedPokemon = sortedPokemon.filter((poke) => poke.types.includes(selectedType))
+  };
+
+  // stat and alphabetical sorting logic
+  if (sortBy==='alphabetical') {
+    sortedPokemon.sort((a,b) => a.name.localeCompare(b.name))
   } else if (sortBy) {
-    sortedPokemon.sort((a, b) => b[sortBy] - a[sortBy]);
-  }
-
-  // Filter by type
-  if (filterType) {
-    sortedPokemon = sortedPokemon.filter((poke) => poke.type.includes(filterType));
+    sortedPokemon.sort((a,b) => b[sortBy] - a[sortBy])
   }
 
   return (
     <>
       <Sorting
+        setSelectedType={setSelectedType}
         setSortBy={setSortBy}
         types={types}
-        setFilterType={setFilterType} 
       />
 
       {sortedPokemon.map((poke) => (
         <div key={poke.name}>
           <p>{poke.name}</p>
-          <img src={poke.image} alt={poke.name} />
+          <img
+            src={poke.image}
+          />
         </div>
       ))}
     </>
-  );
-};
+  )
+}
 
-export default App;
+export default App
